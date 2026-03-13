@@ -48,6 +48,10 @@ modbus_controller:
         value_type: U_WORD
         read_lambda: |-
           return (random_uint32() % 100);
+      - address: 0x0007
+        value_type: U_WORD
+        read_lambda: |-
+          return {};
 binary_sensor:
   - platform: modbus_controller
     modbus_controller_id: modbus_controller1
