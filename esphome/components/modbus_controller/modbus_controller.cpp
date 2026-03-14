@@ -135,8 +135,7 @@ void ModbusController::on_modbus_read_registers(uint8_t function_code, uint16_t 
         }
         std::optional<int64_t> value = server_register->read_lambda();
         if (!value.has_value()) {
-          ESP_LOGW(TAG,
-                   "Matched register at 0x%02X but read lambda returned no value. Sending exception response.",
+          ESP_LOGW(TAG, "Matched register at 0x%02X but read lambda returned no value. Sending exception response.",
                    server_register->address);
           this->send_error(function_code, ModbusExceptionCode::SERVICE_DEVICE_FAILURE);
           return;
