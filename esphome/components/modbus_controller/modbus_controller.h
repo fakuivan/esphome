@@ -138,8 +138,7 @@ class ServerRegister {
     this->register_count = register_count;
   }
 
-  template<typename T>
-  void set_read_lambda(const std::function<optional<T>(uint16_t address)> &&user_read_lambda) {
+  template<typename T> void set_read_lambda(const std::function<optional<T>(uint16_t address)> &&user_read_lambda) {
     this->read_lambda = [this, user_read_lambda]() -> optional<int64_t> {
       optional<T> user_value = user_read_lambda(this->address);
       if (!user_value.has_value()) {
