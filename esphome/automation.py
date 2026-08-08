@@ -7,6 +7,7 @@ from esphome.const import (
     CONF_ALL,
     CONF_ANY,
     CONF_AUTOMATION_ID,
+    CONF_AVAILABLE,
     CONF_CONDITION,
     CONF_COUNT,
     CONF_ELSE,
@@ -137,6 +138,7 @@ WaitUntilAction = cg.esphome_ns.class_("WaitUntilAction", Action, cg.Component)
 UpdateComponentAction = cg.esphome_ns.class_("UpdateComponentAction", Action)
 SuspendComponentAction = cg.esphome_ns.class_("SuspendComponentAction", Action)
 ResumeComponentAction = cg.esphome_ns.class_("ResumeComponentAction", Action)
+EntitySetAvailableAction = cg.esphome_ns.class_("EntitySetAvailableAction", Action)
 Automation = cg.esphome_ns.class_("Automation")
 TriggerForwarder = cg.esphome_ns.class_("TriggerForwarder")
 TriggerOnTrueForwarder = cg.esphome_ns.class_("TriggerOnTrueForwarder")
@@ -532,6 +534,30 @@ async def lambda_action_to_code(
 ) -> MockObj:
     lambda_ = await cg.process_lambda(config, args, return_type=cg.void)
     return new_lambda_pvariable(action_id, lambda_, StatelessLambdaAction, template_arg)
+
+
+@register_action(
+    "entity.set_available",
+    EntitySetAvailableAction,
+    cv.Schema(
+        {
+            cv.Required(CONF_ID): cv.use_id(cg.EntityBase),
+            cv.Required(CONF_AVAILABLE): cv.templatable(cv.boolean),
+        }
+    ),
+    synchronous=True,
+)
+async def entity_set_available_action_to_code(
+    config: ConfigType,
+    action_id: ID,
+    template_arg: cg.TemplateArguments,
+    args: TemplateArgsType,
+) -> MockObj:
+    entity = await cg.get_variable(config[CONF_ID])
+    var = cg.new_Pvariable(action_id, template_arg, entity)
+    available = await cg.templatable(config[CONF_AVAILABLE], args, cg.bool_)
+    cg.add(var.set_available(available))
+    return var
 
 
 @register_action(

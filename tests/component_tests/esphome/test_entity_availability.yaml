@@ -1,0 +1,17 @@
+esphome:
+  name: test-entity-availability
+  on_boot:
+    then:
+      - entity.set_available:
+          id: test_entity
+          available: false
+      - entity.set_available:
+          id: test_entity
+          available: !lambda return true;
+
+host:
+
+binary_sensor:
+  - platform: template
+    id: test_entity
+    name: Test Entity

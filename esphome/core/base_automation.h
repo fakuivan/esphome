@@ -2,6 +2,7 @@
 
 #include "esphome/core/automation.h"
 #include "esphome/core/component.h"
+#include "esphome/core/entity_base.h"
 #include "esphome/core/hal.h"
 #include "esphome/core/defines.h"
 #include "esphome/core/preferences.h"
@@ -155,6 +156,18 @@ class LoopTrigger : public Trigger<>, public Component {
  public:
   void loop() override { this->trigger(); }
   float get_setup_priority() const override { return setup_priority::DATA; }
+};
+
+template<typename... Ts> class EntitySetAvailableAction final : public Action<Ts...> {
+ public:
+  explicit EntitySetAvailableAction(EntityBase *entity) : entity_(entity) {}
+
+  TEMPLATABLE_VALUE(bool, available)
+
+  void play(const Ts &...x) override { this->entity_->set_available(this->available_.value(x...)); }
+
+ protected:
+  EntityBase *entity_;
 };
 
 #ifdef USE_DEVICES
