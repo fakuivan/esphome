@@ -3,10 +3,23 @@
 #include "esphome/core/helpers.h"
 #include "esphome/core/progmem.h"
 #include "esphome/core/string_ref.h"
+#ifdef USE_CONTROLLER_REGISTRY
+#include "esphome/core/controller_registry.h"
+#endif
 
 namespace esphome {
 
 static const char *const TAG = "entity_base";
+
+void EntityBase::set_available(bool available) {
+  bool unavailable = !available;
+  if (this->flags_.unavailable == unavailable)
+    return;
+  this->flags_.unavailable = unavailable;
+#ifdef USE_CONTROLLER_REGISTRY
+  ControllerRegistry::notify_entity_availability_update(this);
+#endif
+}
 
 void EntityBase::configure_entity_(const char *name, uint32_t entity_key, uint32_t entity_fields) {
   this->name_ = StringRef(name);

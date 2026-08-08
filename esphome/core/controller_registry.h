@@ -10,6 +10,7 @@
 namespace esphome {
 
 class Controller;
+class EntityBase;
 #ifdef USE_DEVICES
 class Device;
 #endif
@@ -42,6 +43,7 @@ class ControllerRegistry {
 #ifdef USE_DEVICES
   static void notify_device_update(Device *obj);
 #endif
+  static void notify_entity_availability_update(EntityBase *obj);
 
 // Notify method declarations (generated from entity_types.h)
 // NOLINTBEGIN(bugprone-macro-parentheses)
@@ -78,6 +80,12 @@ inline void ControllerRegistry::notify_device_update(Device *obj) {
   }
 }
 #endif
+
+inline void ControllerRegistry::notify_entity_availability_update(EntityBase *obj) {
+  for (auto *controller : controllers) {
+    controller->on_entity_availability_update(obj);
+  }
+}
 
 // NOLINTBEGIN(bugprone-macro-parentheses)
 #define ENTITY_TYPE_(type, singular, plural, count, upper)  // no controller callback

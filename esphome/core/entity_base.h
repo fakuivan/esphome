@@ -190,6 +190,12 @@ class EntityBase {
   // Set has_state - for components that need to manually set this
   void set_has_state(bool state) { this->flags_.has_state = state; }
 
+  // Get whether this entity is available to clients.
+  bool is_available() const { return !this->flags_.unavailable; }
+
+  // Set whether this entity is available to clients.
+  void set_available(bool available);
+
   /// Get this entity's device id, or 0 when devices are not compiled in (main device).
   uint32_t get_device_id_or_zero() const {
 #ifdef USE_DEVICES
@@ -255,14 +261,15 @@ class EntityBase {
   Device *device_{};
 #endif
 
-  // Bit-packed flags to save memory (1 byte instead of 5)
+  // Bit-packed flags to save memory (1 byte instead of 6)
   struct EntityFlags {
     uint8_t has_own_name : 1;
     uint8_t internal : 1;
     uint8_t disabled_by_default : 1;
     uint8_t has_state : 1;
     uint8_t entity_category : 2;  // Supports up to 4 categories
-    uint8_t reserved : 2;         // Reserved for future use
+    uint8_t unavailable : 1;
+    uint8_t reserved : 1;  // Reserved for future use
   } flags_{};
   // String table indices — packed into the 3 padding bytes after flags_
 #ifdef USE_ENTITY_DEVICE_CLASS
