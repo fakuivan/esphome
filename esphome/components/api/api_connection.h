@@ -95,6 +95,7 @@ class APIConnection final : public APIServerConnectionBase {
 #ifdef USE_DEVICES
   bool send_device_state(Device *device);
 #endif
+  bool send_entity_availability_state(EntityBase *entity, enums::EntityType entity_type);
 #ifdef USE_BINARY_SENSOR
   bool send_binary_sensor_state(binary_sensor::BinarySensor *binary_sensor);
 #endif
@@ -597,6 +598,8 @@ class APIConnection final : public APIServerConnectionBase {
 #ifdef USE_DEVICES
   static uint16_t try_send_device_state(Device *device, APIConnection *conn, uint32_t remaining_size);
 #endif
+  static uint16_t try_send_entity_availability_state(EntityBase *entity, enums::EntityType entity_type,
+                                                     APIConnection *conn, uint32_t remaining_size);
 
   // Method for ListEntitiesDone batching
   static uint16_t try_send_list_info_done(EntityBase *entity, APIConnection *conn, uint32_t remaining_size);
@@ -663,7 +666,7 @@ class APIConnection final : public APIServerConnectionBase {
       void *source;                             // 4 bytes - Entity or device pointer
       uint8_t message_type;                     // 1 byte - Message type for protocol and dispatch
       uint8_t estimated_size;                   // 1 byte - Estimated message size (max 255 bytes)
-      uint8_t aux_data_index{AUX_DATA_UNUSED};  // 1 byte - For events: index into entity's event_types
+      uint8_t aux_data_index{AUX_DATA_UNUSED};  // 1 byte - Event type index or EntityType value
       // 1 byte padding
     };
 

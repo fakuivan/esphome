@@ -522,6 +522,25 @@ uint16_t APIConnection::try_send_device_state(Device *device, APIConnection *con
 }
 #endif
 
+bool APIConnection::send_entity_availability_state(EntityBase *entity, enums::EntityType entity_type) {
+  if (!this->client_supports_api_version(1, 16)) {
+    if (!entity->is_available())
+      ESP_LOGW(TAG, "Cannot report entity '%s' as unavailable to client '%s': API 1.16+ required",
+               entity->get_name().c_str(), this->get_name());
+    return true;
+  }
+  return this->send_message_smart_(entity, EntityAvailabilityStateResponse::MESSAGE_TYPE,
+                                   EntityAvailabilityStateResponse::ESTIMATED_SIZE, static_cast<uint8_t>(entity_type));
+}
+
+uint16_t APIConnection::try_send_entity_availability_state(EntityBase *entity, enums::EntityType entity_type,
+                                                           APIConnection *conn, uint32_t remaining_size) {
+  EntityAvailabilityStateResponse resp;
+  resp.entity_type = entity_type;
+  resp.available = entity->is_available();
+  return fill_and_encode_entity_state(entity, resp, conn, remaining_size);
+}
+
 #ifdef USE_COVER
 bool APIConnection::send_cover_state(cover::Cover *cover) {
   return this->send_message_smart_(cover, CoverStateResponse::MESSAGE_TYPE, CoverStateResponse::ESTIMATED_SIZE);
@@ -1755,7 +1774,7 @@ bool APIConnection::send_hello_response_(const HelloRequest &msg) {
 
   HelloResponse resp;
   resp.api_version_major = 1;
-  resp.api_version_minor = 15;
+  resp.api_version_minor = 16;
   // Send only the version string - the client only logs this for debugging and doesn't use it otherwise
   resp.server_info = ESPHOME_VERSION_REF;
   resp.name = StringRef(App.get_name());
@@ -2384,6 +2403,14 @@ uint16_t APIConnection::dispatch_message_(const DeferredBatch::BatchItem &item, 
                                    this, remaining_size);
   }
 #endif
+
+  if (item.message_type == EntityAvailabilityStateResponse::MESSAGE_TYPE) {
+    if (item.aux_data_index == DeferredBatch::AUX_DATA_UNUSED)
+      return 0;
+    return try_send_entity_availability_state(static_cast<EntityBase *>(item.source),
+                                              static_cast<enums::EntityType>(item.aux_data_index), this,
+                                              remaining_size);
+  }
 
 #ifdef USE_DEVICES
   if (item.message_type == DeviceStateResponse::MESSAGE_TYPE) {
