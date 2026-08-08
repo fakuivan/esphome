@@ -17,6 +17,11 @@ logger:
 
 switch:
   - platform: template
+    id: individual_target
+    name: Individual Target
+    optimistic: true
+
+  - platform: template
     id: child_target
     name: Child Target
     device_id: child_module
@@ -35,4 +40,18 @@ button:
     on_press:
       - device.set_available:
           id: child_module
+          available: true
+
+  - platform: template
+    name: Make Individual Unavailable
+    on_press:
+      - entity.set_available:
+          id: individual_target
+          available: false
+
+  - platform: template
+    name: Make Individual Available
+    on_press:
+      - entity.set_available:
+          id: individual_target
           available: true

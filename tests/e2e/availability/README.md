@@ -1,8 +1,8 @@
 # ESPHome availability Home Assistant E2E
 
-This opt-in harness verifies sub-device availability against a real Home
-Assistant server and its real ESPHome integration. It is not part of the normal
-test suite because it pulls and starts a Home Assistant container.
+This opt-in harness verifies the two availability protocol additions against a
+real Home Assistant server and its real ESPHome integration. It is not part of
+the normal test suite because it pulls and starts a Home Assistant container.
 
 The harness needs local checkouts containing the companion aioesphomeapi and
 Home Assistant Core changes. It bind-mounts those sources into an official Home
@@ -22,14 +22,14 @@ The test does the following:
 1. Compiles and starts the ESPHome host fixture.
 2. Starts an isolated Home Assistant container and completes onboarding.
 3. Adds the host fixture through Home Assistant's ESPHome config flow.
-4. Presses an ESPHome button through Home Assistant to make a sub-device
-   unavailable.
-5. Verifies the associated Home Assistant entity is `unavailable`.
-6. Requests availability again and verifies its prior state returns.
+4. Presses ESPHome buttons through Home Assistant to make a sub-device and one
+   entity unavailable.
+5. Verifies both Home Assistant states are `unavailable`.
+6. Requests availability again and verifies both prior states return.
 
 With `--keep-running` (also available as `--interactive`), the test prints a
-browser URL and pauses once while the target is unavailable and again after it
-recovers. The isolated server has one ephemeral user and accepts trusted
+browser URL and pauses once while both targets are unavailable and again after
+they recover. The isolated server has one ephemeral user and accepts trusted
 localhost browser connections, so the dashboard opens without a login prompt.
 The server and host fixture stop after the second prompt.
 

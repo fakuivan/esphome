@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run ESPHome sub-device availability through a real Home Assistant server."""
+"""Run the ESPHome availability changes through a real Home Assistant server."""
 
 from __future__ import annotations
 
@@ -28,8 +28,11 @@ STARTUP_TIMEOUT = 240
 STATE_TIMEOUT = 90
 
 CHILD_TARGET = "switch.child_module_child_target"
+INDIVIDUAL_TARGET = "switch.availability_e2e_individual_target"
 CHILD_UNAVAILABLE_BUTTON = "button.availability_e2e_make_child_unavailable"
 CHILD_AVAILABLE_BUTTON = "button.availability_e2e_make_child_available"
+INDIVIDUAL_UNAVAILABLE_BUTTON = "button.availability_e2e_make_individual_unavailable"
+INDIVIDUAL_AVAILABLE_BUTTON = "button.availability_e2e_make_individual_available"
 
 
 def log(message: str) -> None:
@@ -250,11 +253,15 @@ views:
         entities:
           - entity: {CHILD_TARGET}
             name: Child device target
+          - entity: {INDIVIDUAL_TARGET}
+            name: Individual target
       - type: entities
         title: Controls
         entities:
           - entity: {CHILD_UNAVAILABLE_BUTTON}
           - entity: {CHILD_AVAILABLE_BUTTON}
+          - entity: {INDIVIDUAL_UNAVAILABLE_BUTTON}
+          - entity: {INDIVIDUAL_AVAILABLE_BUTTON}
 """
     )
 
@@ -392,7 +399,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def run(args: argparse.Namespace) -> None:
-    """Compile and exercise sub-device availability."""
+    """Compile and exercise both availability behaviors."""
     repo_root = Path(__file__).resolve().parents[3]
     fixture_path = Path(__file__).with_name("device.yaml")
     aio_checkout = validate_checkout(
@@ -450,20 +457,34 @@ def run(args: argparse.Namespace) -> None:
                 initial_child = client.wait_for_state(
                     CHILD_TARGET, lambda state: state != "unavailable", "available"
                 )
+                initial_individual = client.wait_for_state(
+                    INDIVIDUAL_TARGET,
+                    lambda state: state != "unavailable",
+                    "available",
+                )
                 log(
-                    "ESPHome entity loaded in Home Assistant "
-                    f"({CHILD_TARGET}={initial_child})"
+                    "ESPHome entities loaded in Home Assistant "
+                    f"({CHILD_TARGET}={initial_child}, "
+                    f"{INDIVIDUAL_TARGET}={initial_individual})"
                 )
                 log(
                     "Control buttons: "
-                    f"{CHILD_UNAVAILABLE_BUTTON}, {CHILD_AVAILABLE_BUTTON}"
+                    f"{CHILD_UNAVAILABLE_BUTTON}, {CHILD_AVAILABLE_BUTTON}, "
+                    f"{INDIVIDUAL_UNAVAILABLE_BUTTON}, "
+                    f"{INDIVIDUAL_AVAILABLE_BUTTON}"
                 )
 
                 client.press(CHILD_UNAVAILABLE_BUTTON)
+                client.press(INDIVIDUAL_UNAVAILABLE_BUTTON)
                 client.wait_for_state(
                     CHILD_TARGET, lambda state: state == "unavailable", "unavailable"
                 )
-                log("PASS: sub-device target is unavailable")
+                client.wait_for_state(
+                    INDIVIDUAL_TARGET,
+                    lambda state: state == "unavailable",
+                    "unavailable",
+                )
+                log("PASS: sub-device and individual entity are both unavailable")
                 log(f"Dashboard: {client.base_url}/lovelace/availability")
                 if args.interactive:
                     input(
@@ -471,12 +492,18 @@ def run(args: argparse.Namespace) -> None:
                     )
 
                 client.press(CHILD_AVAILABLE_BUTTON)
+                client.press(INDIVIDUAL_AVAILABLE_BUTTON)
                 client.wait_for_state(
                     CHILD_TARGET,
                     lambda state: state == initial_child,
                     repr(initial_child),
                 )
-                log("PASS: sub-device target recovered its prior state")
+                client.wait_for_state(
+                    INDIVIDUAL_TARGET,
+                    lambda state: state == initial_individual,
+                    repr(initial_individual),
+                )
+                log("PASS: both entities recovered their prior states")
                 if args.interactive:
                     input("Inspect the available state, then press Enter to stop: ")
         except Exception:
