@@ -4193,5 +4193,25 @@ uint32_t BluetoothSetConnectionParamsResponse::calculate_size() const {
   return size;
 }
 #endif
+uint8_t *EntityAvailabilityStateResponse::encode(ProtoWriteBuffer &buffer PROTO_ENCODE_DEBUG_PARAM) const {
+  uint8_t *__restrict__ pos = buffer.get_pos();
+  ProtoEncode::write_tag_and_fixed32(pos PROTO_ENCODE_DEBUG_ARG, 13, this->key);
+  ProtoEncode::encode_uint32(pos PROTO_ENCODE_DEBUG_ARG, 2, static_cast<uint32_t>(this->entity_type));
+  ProtoEncode::encode_bool(pos PROTO_ENCODE_DEBUG_ARG, 3, this->available);
+#ifdef USE_DEVICES
+  ProtoEncode::encode_uint32(pos PROTO_ENCODE_DEBUG_ARG, 4, this->device_id);
+#endif
+  return pos;
+}
+uint32_t EntityAvailabilityStateResponse::calculate_size() const {
+  uint32_t size = 0;
+  size += 5;
+  size += this->entity_type ? 2 : 0;
+  size += ProtoSize::calc_bool(1, this->available);
+#ifdef USE_DEVICES
+  size += ProtoSize::calc_uint32(1, this->device_id);
+#endif
+  return size;
+}
 
 }  // namespace esphome::api

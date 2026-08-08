@@ -159,6 +159,64 @@ template<> const char *proto_enum_to_string<enums::EntityCategory>(enums::Entity
       return ESPHOME_PSTR("UNKNOWN");
   }
 }
+template<> const char *proto_enum_to_string<enums::EntityType>(enums::EntityType value) {
+  switch (value) {
+    case enums::ENTITY_TYPE_NONE:
+      return ESPHOME_PSTR("ENTITY_TYPE_NONE");
+    case enums::ENTITY_TYPE_BINARY_SENSOR:
+      return ESPHOME_PSTR("ENTITY_TYPE_BINARY_SENSOR");
+    case enums::ENTITY_TYPE_COVER:
+      return ESPHOME_PSTR("ENTITY_TYPE_COVER");
+    case enums::ENTITY_TYPE_FAN:
+      return ESPHOME_PSTR("ENTITY_TYPE_FAN");
+    case enums::ENTITY_TYPE_LIGHT:
+      return ESPHOME_PSTR("ENTITY_TYPE_LIGHT");
+    case enums::ENTITY_TYPE_SENSOR:
+      return ESPHOME_PSTR("ENTITY_TYPE_SENSOR");
+    case enums::ENTITY_TYPE_SWITCH:
+      return ESPHOME_PSTR("ENTITY_TYPE_SWITCH");
+    case enums::ENTITY_TYPE_BUTTON:
+      return ESPHOME_PSTR("ENTITY_TYPE_BUTTON");
+    case enums::ENTITY_TYPE_TEXT_SENSOR:
+      return ESPHOME_PSTR("ENTITY_TYPE_TEXT_SENSOR");
+    case enums::ENTITY_TYPE_CLIMATE:
+      return ESPHOME_PSTR("ENTITY_TYPE_CLIMATE");
+    case enums::ENTITY_TYPE_NUMBER:
+      return ESPHOME_PSTR("ENTITY_TYPE_NUMBER");
+    case enums::ENTITY_TYPE_DATETIME_DATE:
+      return ESPHOME_PSTR("ENTITY_TYPE_DATETIME_DATE");
+    case enums::ENTITY_TYPE_DATETIME_TIME:
+      return ESPHOME_PSTR("ENTITY_TYPE_DATETIME_TIME");
+    case enums::ENTITY_TYPE_DATETIME_DATETIME:
+      return ESPHOME_PSTR("ENTITY_TYPE_DATETIME_DATETIME");
+    case enums::ENTITY_TYPE_TEXT:
+      return ESPHOME_PSTR("ENTITY_TYPE_TEXT");
+    case enums::ENTITY_TYPE_SELECT:
+      return ESPHOME_PSTR("ENTITY_TYPE_SELECT");
+    case enums::ENTITY_TYPE_LOCK:
+      return ESPHOME_PSTR("ENTITY_TYPE_LOCK");
+    case enums::ENTITY_TYPE_VALVE:
+      return ESPHOME_PSTR("ENTITY_TYPE_VALVE");
+    case enums::ENTITY_TYPE_MEDIA_PLAYER:
+      return ESPHOME_PSTR("ENTITY_TYPE_MEDIA_PLAYER");
+    case enums::ENTITY_TYPE_ALARM_CONTROL_PANEL:
+      return ESPHOME_PSTR("ENTITY_TYPE_ALARM_CONTROL_PANEL");
+    case enums::ENTITY_TYPE_WATER_HEATER:
+      return ESPHOME_PSTR("ENTITY_TYPE_WATER_HEATER");
+    case enums::ENTITY_TYPE_INFRARED:
+      return ESPHOME_PSTR("ENTITY_TYPE_INFRARED");
+    case enums::ENTITY_TYPE_RADIO_FREQUENCY:
+      return ESPHOME_PSTR("ENTITY_TYPE_RADIO_FREQUENCY");
+    case enums::ENTITY_TYPE_EVENT:
+      return ESPHOME_PSTR("ENTITY_TYPE_EVENT");
+    case enums::ENTITY_TYPE_UPDATE:
+      return ESPHOME_PSTR("ENTITY_TYPE_UPDATE");
+    case enums::ENTITY_TYPE_CAMERA:
+      return ESPHOME_PSTR("ENTITY_TYPE_CAMERA");
+    default:
+      return ESPHOME_PSTR("UNKNOWN");
+  }
+}
 #ifdef USE_COVER
 template<> const char *proto_enum_to_string<enums::CoverOperation>(enums::CoverOperation value) {
   switch (value) {
@@ -2738,6 +2796,16 @@ const char *BluetoothSetConnectionParamsResponse::dump_to(DumpBuffer &out) const
   return out.c_str();
 }
 #endif
+const char *EntityAvailabilityStateResponse::dump_to(DumpBuffer &out) const {
+  MessageDumpHelper helper(out, ESPHOME_PSTR("EntityAvailabilityStateResponse"));
+  dump_field(out, ESPHOME_PSTR("key"), this->key);
+  dump_field(out, ESPHOME_PSTR("entity_type"), static_cast<enums::EntityType>(this->entity_type));
+  dump_field(out, ESPHOME_PSTR("available"), this->available);
+#ifdef USE_DEVICES
+  dump_field(out, ESPHOME_PSTR("device_id"), this->device_id);
+#endif
+  return out.c_str();
+}
 
 }  // namespace esphome::api
 

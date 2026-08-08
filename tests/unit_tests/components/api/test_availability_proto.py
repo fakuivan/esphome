@@ -24,3 +24,16 @@ def test_device_state_response_wire_contract() -> None:
     assert "option (no_delay) = true;" in body
     assert "uint32 device_id = 1;" in body
     assert "bool available = 2;" in body
+
+
+def test_entity_availability_state_response_wire_contract() -> None:
+    """Entity availability follows device availability on the wire."""
+    body = _extract_message_body("EntityAvailabilityStateResponse")
+    assert "option (id) = 150;" in body
+    assert 'option (base_class) = "StateResponseProtoMessage";' in body
+    assert "option (source) = SOURCE_SERVER;" in body
+    assert "option (no_delay) = true;" in body
+    assert "fixed32 key = 1" in body
+    assert "EntityType entity_type = 2;" in body
+    assert "bool available = 3;" in body
+    assert "uint32 device_id = 4" in body

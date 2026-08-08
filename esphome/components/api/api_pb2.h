@@ -25,6 +25,34 @@ enum EntityCategory : uint32_t {
   ENTITY_CATEGORY_CONFIG = 1,
   ENTITY_CATEGORY_DIAGNOSTIC = 2,
 };
+enum EntityType : uint32_t {
+  ENTITY_TYPE_NONE = 0,
+  ENTITY_TYPE_BINARY_SENSOR = 1,
+  ENTITY_TYPE_COVER = 2,
+  ENTITY_TYPE_FAN = 3,
+  ENTITY_TYPE_LIGHT = 4,
+  ENTITY_TYPE_SENSOR = 5,
+  ENTITY_TYPE_SWITCH = 6,
+  ENTITY_TYPE_BUTTON = 7,
+  ENTITY_TYPE_TEXT_SENSOR = 8,
+  ENTITY_TYPE_CLIMATE = 9,
+  ENTITY_TYPE_NUMBER = 10,
+  ENTITY_TYPE_DATETIME_DATE = 11,
+  ENTITY_TYPE_DATETIME_TIME = 12,
+  ENTITY_TYPE_DATETIME_DATETIME = 13,
+  ENTITY_TYPE_TEXT = 14,
+  ENTITY_TYPE_SELECT = 15,
+  ENTITY_TYPE_LOCK = 16,
+  ENTITY_TYPE_VALVE = 17,
+  ENTITY_TYPE_MEDIA_PLAYER = 18,
+  ENTITY_TYPE_ALARM_CONTROL_PANEL = 19,
+  ENTITY_TYPE_WATER_HEATER = 20,
+  ENTITY_TYPE_INFRARED = 21,
+  ENTITY_TYPE_RADIO_FREQUENCY = 22,
+  ENTITY_TYPE_EVENT = 23,
+  ENTITY_TYPE_UPDATE = 24,
+  ENTITY_TYPE_CAMERA = 25,
+};
 #ifdef USE_COVER
 enum CoverOperation : uint32_t {
   COVER_OPERATION_IDLE = 0,
@@ -3345,5 +3373,22 @@ class BluetoothSetConnectionParamsResponse final : public ProtoMessage {
  protected:
 };
 #endif
+class EntityAvailabilityStateResponse final : public StateResponseProtoMessage {
+ public:
+  static constexpr uint8_t MESSAGE_TYPE = 150;
+  static constexpr uint8_t ESTIMATED_SIZE = 13;
+#ifdef HAS_PROTO_MESSAGE_DUMP
+  const LogString *message_name() const override { return LOG_STR("entity_availability_state_response"); }
+#endif
+  enums::EntityType entity_type{};
+  bool available{false};
+  uint8_t *encode(ProtoWriteBuffer &buffer PROTO_ENCODE_DEBUG_PARAM) const;
+  uint32_t calculate_size() const;
+#ifdef HAS_PROTO_MESSAGE_DUMP
+  const char *dump_to(DumpBuffer &out) const override;
+#endif
+
+ protected:
+};
 
 }  // namespace esphome::api
