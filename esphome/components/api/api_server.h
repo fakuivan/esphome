@@ -80,6 +80,7 @@ class APIServer final : public Component,
 #endif  // USE_API_NOISE
 
   void handle_disconnect(APIConnection *conn);
+  void on_entity_availability_update(EntityBase *entity) override;
 #ifdef USE_DEVICES
   void on_device_update(Device *device) override;
 #endif

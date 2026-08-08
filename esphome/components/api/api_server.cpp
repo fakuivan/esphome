@@ -284,6 +284,39 @@ void APIServer::dump_config() {
 
 void APIServer::handle_disconnect(APIConnection *conn) {}
 
+static enums::EntityType entity_type_for(EntityBase *entity) {
+// NOLINTBEGIN(bugprone-macro-parentheses)
+#define ENTITY_TYPE_(type, singular, plural, count, upper) \
+  for (auto *candidate : App.get_##plural()) { \
+    if (candidate == entity) \
+      return enums::ENTITY_TYPE_##upper; \
+  }
+#define ENTITY_CONTROLLER_TYPE_(type, singular, plural, count, upper, callback) \
+  ENTITY_TYPE_(type, singular, plural, count, upper)
+#include "esphome/core/entity_types.h"
+#undef ENTITY_TYPE_
+#undef ENTITY_CONTROLLER_TYPE_
+  // NOLINTEND(bugprone-macro-parentheses)
+
+#ifdef USE_CAMERA
+  if (camera::Camera::instance() == entity)
+    return enums::ENTITY_TYPE_CAMERA;
+#endif
+  return enums::ENTITY_TYPE_NONE;
+}
+
+void APIServer::on_entity_availability_update(EntityBase *entity) {
+  if (entity->is_internal())
+    return;
+  auto entity_type = entity_type_for(entity);
+  if (entity_type == enums::ENTITY_TYPE_NONE)
+    return;
+  for (auto &client : this->active_clients()) {
+    if (client->flags_.state_subscription)
+      client->send_entity_availability_state(entity, entity_type);
+  }
+}
+
 #ifdef USE_DEVICES
 void APIServer::on_device_update(Device *device) {
   for (auto &client : this->active_clients()) {
