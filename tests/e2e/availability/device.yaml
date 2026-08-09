@@ -1,0 +1,38 @@
+substitutions:
+  api_port: "6053"
+
+esphome:
+  name: availability-e2e
+  friendly_name: Availability E2E
+  devices:
+    - id: child_module
+      name: Child Module
+
+host:
+
+api:
+  port: ${api_port}
+
+logger:
+
+switch:
+  - platform: template
+    id: child_target
+    name: Child Target
+    device_id: child_module
+    optimistic: true
+
+button:
+  - platform: template
+    name: Make Child Unavailable
+    on_press:
+      - device.set_available:
+          id: child_module
+          available: false
+
+  - platform: template
+    name: Make Child Available
+    on_press:
+      - device.set_available:
+          id: child_module
+          available: true
